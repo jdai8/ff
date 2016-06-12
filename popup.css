@@ -1,0 +1,19 @@
+body {
+    width: 300px;
+}
+
+#input {
+    width: 100%;
+}
+
+.results {
+    width: 100%;
+}
+
+.row {
+    padding: 10px;
+}
+
+.selected {
+    background-color: rgb(238,238,238);
+}
