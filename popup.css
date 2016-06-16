@@ -2,18 +2,30 @@ body {
     width: 300px;
 }
 
-#input {
-    width: 100%;
-}
-
-.results {
+#input, .results {
     width: 100%;
 }
 
 .row {
     padding: 10px;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    
+    display: none; 
+    /* start out empty */
+}
+
+span {
+    flex-wrap: wrap;
 }
 
 .selected {
     background-color: rgb(238,238,238);
+}
+
+img {
+    height: 20px;
+    width: 20px;
+    margin-right: 10px;
 }

@@ -4,32 +4,56 @@ chrome.tabs.query({}, function(t) {
 
     for (var i = 0; i < t.length; i++) {
         tabs[i] = t[i];
-        tabs[i].score = 1;
+        tabs[i].score = 0;
     }
 });
 
 window.onload = function(){
 
-    const input = document.getElementById('input');
+    const view = {
+        input: document.getElementById('input'),
+        rows: [],
+        icons: [],
+        titles: [],
+        setView: function(i, tab) {
+            if (tab) {
+                this.rows[i].style.display = 'flex';
+                this.icons[i].src = tab.favIconUrl;
+                this.titles[i].innerHTML = tab.title;
+            }
+            else 
+                this.rows[i].style.display = 'none';
+        }
+
+    };
+
+    for (var i = 0; i < 5; i++) {
+        view.rows[i] = document.getElementById(i.toString());
+        view.icons[i] = document.getElementById('img' + i.toString());
+        view.titles[i] = document.getElementById('title' + i.toString());
+    }
+
     var selected = -1;
     var numMatches;
 
-    input.oninput = function() {
+    view.input.oninput = function() {
 
         if (tabs) {
 
-            sortTabs(input.value.trim().toLowerCase());
+            sortTabs(view.input.value.trim().toLowerCase());
             updateView();
         }
     };
 
-    input.onkeydown = function(event) {
+    document.body.onkeydown = function(event) {
 
         if (selected !== -1) { 
-            var key = event.key;
+
+            const key = event.key;
 
             if (key === 'Enter')
                 chrome.tabs.update(tabs[selected].id, { active: true });
+
             else if ((key === 'ArrowUp' || (event.ctrlKey && key === 'k' )) 
                 && selected > 0)
                 setSelected(selected - 1);
@@ -46,13 +70,13 @@ window.onload = function(){
 
         for (var i = 0; i < l ; i++) {
 
-            var row = document.getElementById(i.toString());
-            row.innerHTML = '';
-
             if (tabs[i].score > 0) {
-                row.appendChild(document.createTextNode(tabs[i].title));
+
+                view.setView(i, tabs[i]);
                 numMatches++;
             }
+            else
+                view.setView(i, undefined);
         }
 
         if (numMatches)
@@ -60,22 +84,22 @@ window.onload = function(){
 
         else {
             setSelected(-1);
-            document.getElementById('0')
-                .appendChild(document.createTextNode('No matches'));
+            view.setView(0, { 
+                favIconUrl: 'error.svg', 
+                title: 'No matches'
+            });
         }
     }
 
     function setSelected(i) {
 
-        if (selected !== -1) {
-            document.getElementById(selected.toString())
-                .classList.remove('selected')
-        }
+        if (selected !== -1) 
+            view.rows[selected].classList.remove('selected');
+
         selected = i;
-        if (selected !== -1) {
-            document.getElementById(selected.toString())
-                .classList.add('selected');
-        }
+
+        if (selected !== -1) 
+            view.rows[selected].classList.add('selected');
     }
 };
 
@@ -91,7 +115,7 @@ function score(input, tab) {
 
     var oldScore = Math.floor(tab.score / 2);
 
-    var newScore = input.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+    var newScore = input//.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
         .split(/\s/)
         .reduce(function(a, key) {
             return a + scoreTitle(key, tab.title) + scoreUrl(key, tab.url) 
