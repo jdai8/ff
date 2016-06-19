@@ -108,44 +108,5 @@ function sortTabs(key) {
     for (var i = 0; i < tabs.length; i++)
         tabs[i].score = score(key, tabs[i]);
 
-    tabs.sort(function(a, b){ return b.score - a.score; });
-}
-
-function score(input, tab) {
-
-    var oldScore = Math.floor(tab.score / 2);
-
-    var newScore = input//.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-        .split(/\s/)
-        .reduce(function(a, key) {
-            return a + scoreTitle(key, tab.title) + scoreUrl(key, tab.url) 
-        }, 0);
-
-    return Math.max(oldScore, newScore);
-}
-
-function scoreTitle(key, title) {
-    
-    title = title.toLowerCase();
-
-    if (title.match(new RegExp('(\\W|^)' + key)))
-        return key.length;
-
-    if (title.match(new RegExp(key)))
-        return 1;
-
-    return 0;
-}
-
-function scoreUrl(key, url) {
-
-    url = url.toLowerCase();
-
-    if (url.match(new RegExp('#*' + key)))
-        return key.length;
-
-    if (url.match(new RegExp(key)))
-        return 1;
-        
-    return 0; 
+    tabs = stableSort(tabs);
 }
